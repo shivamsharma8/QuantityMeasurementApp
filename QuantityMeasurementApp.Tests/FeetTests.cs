@@ -17,27 +17,45 @@ namespace QuantityMeasurementApp.Tests
         [Test]
         public void GivenSameFeet_WhenCompared_ShouldReturnTrue()
         {
-            var f1 = new Feet(1.0);
-            var f2 = new Feet(1.0);
-
-            Assert.IsTrue(_service.AreEqual(f1, f2));
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q2 = new QuantityLength(1.0, LengthUnit.Feet);
+            Assert.IsTrue(_service.AreEqual(q1, q2));
         }
 
         [Test]
         public void GivenDifferentFeet_WhenCompared_ShouldReturnFalse()
         {
-            var f1 = new Feet(1.0);
-            var f2 = new Feet(2.0);
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q2 = new QuantityLength(2.0, LengthUnit.Feet);
+            Assert.IsFalse(_service.AreEqual(q1, q2));
+        }
 
-            Assert.IsFalse(_service.AreEqual(f1, f2));
+        [Test]
+        public void GivenFeetAndEquivalentInches_WhenCompared_ShouldReturnTrue()
+        {
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q2 = new QuantityLength(12.0, LengthUnit.Inch);
+            Assert.IsTrue(_service.AreEqual(q1, q2));
         }
 
         [Test]
         public void GivenNull_WhenCompared_ShouldReturnFalse()
         {
-            var f1 = new Feet(1.0);
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            Assert.IsFalse(_service.AreEqual(q1, null));
+        }
 
-            Assert.IsFalse(_service.AreEqual(f1, null));
+        [Test]
+        public void GivenSameReference_WhenCompared_ShouldReturnTrue()
+        {
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            Assert.IsTrue(_service.AreEqual(q1, q1));
+        }
+
+        [Test]
+        public void GivenInvalidUnit_ShouldThrowException()
+        {
+            Assert.Throws<System.ArgumentException>(() => new QuantityLength(1.0, (LengthUnit)999));
         }
     }
 }
