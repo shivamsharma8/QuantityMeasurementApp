@@ -80,5 +80,27 @@ namespace QuantityMeasurementApp.Models
             double converted = Convert(Value, Unit, target);
             return new QuantityLength(converted, target);
         }
+
+        public static QuantityLength Add(QuantityLength a, QuantityLength b)
+        {
+            if (a == null || b == null)
+                throw new ArgumentException("Operands must not be null.");
+            if (!Enum.IsDefined(typeof(LengthUnit), a.Unit) || !Enum.IsDefined(typeof(LengthUnit), b.Unit))
+                throw new ArgumentException("Invalid unit type.");
+            if (!double.IsFinite(a.Value) || !double.IsFinite(b.Value))
+                throw new ArgumentException("Values must be finite numbers.");
+            // Convert both to base unit (feet)
+            double aBase = a.Unit.ToBaseUnit(a.Value);
+            double bBase = b.Unit.ToBaseUnit(b.Value);
+            double sumBase = aBase + bBase;
+            // Convert sum to unit of first operand
+            double sumInAUnit = Convert(sumBase, LengthUnit.Feet, a.Unit);
+            return new QuantityLength(sumInAUnit, a.Unit);
+        }
+
+        public QuantityLength Add(QuantityLength other)
+        {
+            return Add(this, other);
+        }
     }
 }

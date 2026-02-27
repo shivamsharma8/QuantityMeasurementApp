@@ -8,6 +8,7 @@ namespace QuantityMeasurementApp
     {
         static void Main(string[] args)
         {
+
             QuantityMeasurementService service = new QuantityMeasurementService();
 
             Console.Write("Enter first value: ");
@@ -28,6 +29,10 @@ namespace QuantityMeasurementApp
                 var unit2 = (LengthUnit)unit2Obj;
                 QuantityLength q1 = new QuantityLength(value1, unit1);
                 QuantityLength q2 = new QuantityLength(value2, unit2);
+                // Addition demo
+                var sum = QuantityLength.Add(q1, q2);
+                Console.WriteLine($"Addition Result: {sum.Value} {sum.Unit}");
+                // Equality demo
                 bool result = service.AreEqual(q1, q2);
                 Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
             }
