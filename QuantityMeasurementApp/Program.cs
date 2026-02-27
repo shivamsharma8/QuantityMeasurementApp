@@ -37,11 +37,11 @@ namespace QuantityMeasurementApp
                     var unit1 = (LengthUnit)unit1Obj;
                     var unit2 = (LengthUnit)unit2Obj;
                     var targetUnit = (LengthUnit)targetUnitObj;
-                    QuantityLength q1 = new QuantityLength(value1, unit1);
-                    QuantityLength q2 = new QuantityLength(value2, unit2);
-                    var sum = QuantityLength.Add(q1, q2, targetUnit);
-                    Console.WriteLine($"Addition Result: {sum.Value} {sum.Unit}");
-                    bool result = service.AreEqual(q1, q2);
+                    var q1 = new Quantity<LengthUnit>(value1, unit1);
+                    var q2 = new Quantity<LengthUnit>(value2, unit2);
+                    var sum = Quantity<LengthUnit>.Add(q1, q2, targetUnit);
+                    Console.WriteLine($"Addition Result: {sum}");
+                    bool result = q1.Equals(q2);
                     Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
                 }
                 else
@@ -72,10 +72,10 @@ namespace QuantityMeasurementApp
                     var unit1 = (WeightUnit)unit1Obj;
                     var unit2 = (WeightUnit)unit2Obj;
                     var targetUnit = (WeightUnit)targetUnitObj;
-                    QuantityWeight q1 = new QuantityWeight(value1, unit1);
-                    QuantityWeight q2 = new QuantityWeight(value2, unit2);
-                    var sum = QuantityWeight.Add(q1, q2, targetUnit);
-                    Console.WriteLine($"Addition Result: {sum.Value} {sum.Unit}");
+                    var q1 = new Quantity<WeightUnit>(value1, unit1);
+                    var q2 = new Quantity<WeightUnit>(value2, unit2);
+                    var sum = Quantity<WeightUnit>.Add(q1, q2, targetUnit);
+                    Console.WriteLine($"Addition Result: {sum}");
                     bool result = q1.Equals(q2);
                     Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
                 }

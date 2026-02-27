@@ -1,17 +1,32 @@
 using System;
 
+using QuantityMeasurementApp.Models;
 namespace QuantityMeasurementApp.Models
 {
     public enum WeightUnit
     {
-        Kilogram,
-        Gram,
-        Pound
+        Kilogram = 0,
+        Gram = 1,
+        Pound = 2
     }
 
-    public static class WeightUnitConversion
+    public static class WeightUnitExtensions
     {
-        // Converts a value in this unit to the base unit (kilogram)
+        public static double GetConversionFactor(this WeightUnit unit)
+        {
+            switch (unit)
+            {
+                case WeightUnit.Kilogram:
+                    return 1.0;
+                case WeightUnit.Gram:
+                    return 0.001;
+                case WeightUnit.Pound:
+                    return 0.453592;
+                default:
+                    throw new ArgumentException("Unsupported unit");
+            }
+        }
+
         public static double ConvertToBaseUnit(this WeightUnit unit, double value)
         {
             switch (unit)
@@ -27,7 +42,6 @@ namespace QuantityMeasurementApp.Models
             }
         }
 
-        // Converts a value in the base unit (kilogram) to this unit
         public static double ConvertFromBaseUnit(this WeightUnit unit, double baseValue)
         {
             switch (unit)
@@ -41,6 +55,11 @@ namespace QuantityMeasurementApp.Models
                 default:
                     throw new ArgumentException("Unsupported unit");
             }
+        }
+
+        public static string GetUnitName(this WeightUnit unit)
+        {
+            return unit.ToString().ToUpper();
         }
     }
 }

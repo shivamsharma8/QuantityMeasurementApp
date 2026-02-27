@@ -1,17 +1,34 @@
 using System;
+using QuantityMeasurementApp.Models;
 namespace QuantityMeasurementApp.Models
 {
     public enum LengthUnit
     {
-        Feet,
-        Inch,
-        Yard,
-        Centimeter
+        Feet = 0,
+        Inch = 1,
+        Yard = 2,
+        Centimeter = 3
     }
 
-    public static class LengthUnitConversion
+    public static class LengthUnitExtensions
     {
-        // Converts a value in this unit to the base unit (feet)
+        public static double GetConversionFactor(this LengthUnit unit)
+        {
+            switch (unit)
+            {
+                case LengthUnit.Feet:
+                    return 1.0;
+                case LengthUnit.Inch:
+                    return 1.0 / 12.0;
+                case LengthUnit.Yard:
+                    return 3.0;
+                case LengthUnit.Centimeter:
+                    return 1.0 / 30.48;
+                default:
+                    throw new ArgumentException("Unsupported unit");
+            }
+        }
+
         public static double ConvertToBaseUnit(this LengthUnit unit, double value)
         {
             switch (unit)
@@ -29,7 +46,6 @@ namespace QuantityMeasurementApp.Models
             }
         }
 
-        // Converts a value in the base unit (feet) to this unit
         public static double ConvertFromBaseUnit(this LengthUnit unit, double baseValue)
         {
             switch (unit)
@@ -45,6 +61,11 @@ namespace QuantityMeasurementApp.Models
                 default:
                     throw new ArgumentException("Unsupported unit");
             }
+        }
+
+        public static string GetUnitName(this LengthUnit unit)
+        {
+            return unit.ToString().ToUpper();
         }
     }
 }
