@@ -21,16 +21,21 @@ namespace QuantityMeasurementApp
             Console.Write("Enter second unit (feet/inch/yard/cm): ");
             string unitInput2 = Console.ReadLine();
 
+            Console.Write("Enter target unit for addition result (feet/inch/yard/cm): ");
+            string targetUnitInput = Console.ReadLine();
+
             if (double.TryParse(valueInput1, out double value1) && double.TryParse(valueInput2, out double value2)
                 && Enum.TryParse(typeof(LengthUnit), Capitalize(unitInput1), out var unit1Obj)
-                && Enum.TryParse(typeof(LengthUnit), Capitalize(unitInput2), out var unit2Obj))
+                && Enum.TryParse(typeof(LengthUnit), Capitalize(unitInput2), out var unit2Obj)
+                && Enum.TryParse(typeof(LengthUnit), Capitalize(targetUnitInput), out var targetUnitObj))
             {
                 var unit1 = (LengthUnit)unit1Obj;
                 var unit2 = (LengthUnit)unit2Obj;
+                var targetUnit = (LengthUnit)targetUnitObj;
                 QuantityLength q1 = new QuantityLength(value1, unit1);
                 QuantityLength q2 = new QuantityLength(value2, unit2);
-                // Addition demo
-                var sum = QuantityLength.Add(q1, q2);
+                // Addition with explicit target unit demo
+                var sum = QuantityLength.Add(q1, q2, targetUnit);
                 Console.WriteLine($"Addition Result: {sum.Value} {sum.Unit}");
                 // Equality demo
                 bool result = service.AreEqual(q1, q2);
@@ -38,7 +43,7 @@ namespace QuantityMeasurementApp
             }
             else
             {
-                Console.WriteLine("Invalid input. Please enter numeric values and valid units (feet/inch/yard/cm).");
+                Console.WriteLine("Invalid input. Please enter numeric values and valid units (feet/inch/yard/cm). Also specify a valid target unit.");
             }
         }
 

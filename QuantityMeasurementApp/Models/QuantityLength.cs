@@ -98,6 +98,42 @@ namespace QuantityMeasurementApp.Models
             return new QuantityLength(sumInAUnit, a.Unit);
         }
 
+        /// <summary>
+        /// Adds two QuantityLength objects and returns the sum in the specified target unit.
+        /// </summary>
+        /// <param name="a">First QuantityLength operand.</param>
+        /// <param name="b">Second QuantityLength operand.</param>
+        /// <param name="targetUnit">The unit for the result.</param>
+        /// <returns>New QuantityLength in the target unit.</returns>
+        /// <exception cref="ArgumentException">Thrown for invalid units or values.</exception>
+        public static QuantityLength Add(QuantityLength a, QuantityLength b, LengthUnit targetUnit)
+        {
+            if (a == null || b == null)
+                throw new ArgumentException("Operands must not be null.");
+            if (!Enum.IsDefined(typeof(LengthUnit), a.Unit) || !Enum.IsDefined(typeof(LengthUnit), b.Unit) || !Enum.IsDefined(typeof(LengthUnit), targetUnit))
+                throw new ArgumentException("Invalid unit type.");
+            if (!double.IsFinite(a.Value) || !double.IsFinite(b.Value))
+                throw new ArgumentException("Values must be finite numbers.");
+            // Convert both to base unit (feet)
+            double aBase = a.Unit.ToBaseUnit(a.Value);
+            double bBase = b.Unit.ToBaseUnit(b.Value);
+            double sumBase = aBase + bBase;
+            // Convert sum to target unit
+            double sumInTargetUnit = Convert(sumBase, LengthUnit.Feet, targetUnit);
+            return new QuantityLength(sumInTargetUnit, targetUnit);
+        }
+
+        /// <summary>
+        /// Adds another QuantityLength to this instance and returns the sum in the specified target unit.
+        /// </summary>
+        /// <param name="other">Other QuantityLength operand.</param>
+        /// <param name="targetUnit">The unit for the result.</param>
+        /// <returns>New QuantityLength in the target unit.</returns>
+        public QuantityLength Add(QuantityLength other, LengthUnit targetUnit)
+        {
+            return Add(this, other, targetUnit);
+        }
+
         public QuantityLength Add(QuantityLength other)
         {
             return Add(this, other);
