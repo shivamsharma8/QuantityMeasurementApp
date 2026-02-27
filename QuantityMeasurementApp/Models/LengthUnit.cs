@@ -9,19 +9,42 @@ namespace QuantityMeasurementApp.Models
         Centimeter
     }
 
-    public static class LengthUnitExtensions
+    public static class LengthUnitConversion
     {
-        public static double ToBaseUnit(this LengthUnit unit, double value)
+        // Converts a value in this unit to the base unit (feet)
+        public static double ConvertToBaseUnit(this LengthUnit unit, double value)
         {
-            // Base unit: Feet
-            return unit switch
+            switch (unit)
             {
-                LengthUnit.Feet => value,
-                LengthUnit.Inch => value / 12.0,
-                LengthUnit.Yard => value * 3.0,
-                LengthUnit.Centimeter => (value * 0.393701) / 12.0,
-                _ => throw new ArgumentException("Unsupported unit")
-            };
+                case LengthUnit.Feet:
+                    return value;
+                case LengthUnit.Inch:
+                    return value / 12.0;
+                case LengthUnit.Yard:
+                    return value * 3.0;
+                case LengthUnit.Centimeter:
+                    return value / 30.48;
+                default:
+                    throw new ArgumentException("Unsupported unit");
+            }
+        }
+
+        // Converts a value in the base unit (feet) to this unit
+        public static double ConvertFromBaseUnit(this LengthUnit unit, double baseValue)
+        {
+            switch (unit)
+            {
+                case LengthUnit.Feet:
+                    return baseValue;
+                case LengthUnit.Inch:
+                    return baseValue * 12.0;
+                case LengthUnit.Yard:
+                    return baseValue / 3.0;
+                case LengthUnit.Centimeter:
+                    return baseValue * 30.48;
+                default:
+                    throw new ArgumentException("Unsupported unit");
+            }
         }
     }
 }

@@ -27,8 +27,8 @@ namespace QuantityMeasurementApp.Models
             if (ReferenceEquals(this, other))
                 return true;
             // Convert both to base unit (feet) and compare
-            double thisBase = Unit.ToBaseUnit(Value);
-            double otherBase = other.Unit.ToBaseUnit(other.Value);
+            double thisBase = Unit.ConvertToBaseUnit(Value);
+            double otherBase = other.Unit.ConvertToBaseUnit(other.Value);
             return Math.Abs(thisBase - otherBase) < 0.0001;
         }
 
@@ -57,16 +57,9 @@ namespace QuantityMeasurementApp.Models
             if (double.IsNaN(value) || double.IsInfinity(value))
                 throw new ArgumentException("Value must be a finite number");
             // Convert to base unit (feet)
-            double baseValue = source.ToBaseUnit(value);
+            double baseValue = source.ConvertToBaseUnit(value);
             // Convert from base unit to target
-            double result = target switch
-            {
-                LengthUnit.Feet => baseValue,
-                LengthUnit.Inch => baseValue * 12.0,
-                LengthUnit.Yard => baseValue / 3.0,
-                LengthUnit.Centimeter => (baseValue * 12.0) / 0.393701,
-                _ => throw new ArgumentException("Unsupported unit")
-            };
+            double result = target.ConvertFromBaseUnit(baseValue);
             return Math.Round(result, 6); // Precision handling
         }
 
@@ -90,11 +83,11 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(a.Value) || !double.IsFinite(b.Value))
                 throw new ArgumentException("Values must be finite numbers.");
             // Convert both to base unit (feet)
-            double aBase = a.Unit.ToBaseUnit(a.Value);
-            double bBase = b.Unit.ToBaseUnit(b.Value);
+            double aBase = a.Unit.ConvertToBaseUnit(a.Value);
+            double bBase = b.Unit.ConvertToBaseUnit(b.Value);
             double sumBase = aBase + bBase;
             // Convert sum to unit of first operand
-            double sumInAUnit = Convert(sumBase, LengthUnit.Feet, a.Unit);
+            double sumInAUnit = a.Unit.ConvertFromBaseUnit(sumBase);
             return new QuantityLength(sumInAUnit, a.Unit);
         }
 
@@ -115,11 +108,11 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(a.Value) || !double.IsFinite(b.Value))
                 throw new ArgumentException("Values must be finite numbers.");
             // Convert both to base unit (feet)
-            double aBase = a.Unit.ToBaseUnit(a.Value);
-            double bBase = b.Unit.ToBaseUnit(b.Value);
+            double aBase = a.Unit.ConvertToBaseUnit(a.Value);
+            double bBase = b.Unit.ConvertToBaseUnit(b.Value);
             double sumBase = aBase + bBase;
             // Convert sum to target unit
-            double sumInTargetUnit = Convert(sumBase, LengthUnit.Feet, targetUnit);
+            double sumInTargetUnit = targetUnit.ConvertFromBaseUnit(sumBase);
             return new QuantityLength(sumInTargetUnit, targetUnit);
         }
 
