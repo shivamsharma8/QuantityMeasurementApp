@@ -78,6 +78,12 @@ namespace QuantityMeasurementApp.Models
             }
         }
 
+        private static void ValidateArithmeticSupport(U unit, string operation)
+        {
+            var measurable = GetMeasurable(unit);
+            measurable.ValidateOperationSupport(operation);
+        }
+
         public override int GetHashCode()
         {
             return Unit.GetHashCode() ^ Value.GetHashCode();
@@ -94,6 +100,8 @@ namespace QuantityMeasurementApp.Models
 
         public static Quantity<U> Add(Quantity<U> a, Quantity<U> b)
         {
+            ValidateArithmeticSupport(a.Unit, "Add");
+            ValidateArithmeticSupport(b.Unit, "Add");
             double sumBase = PerformArithmetic(a, b, ArithmeticOperation.Add);
             var measurableA = GetMeasurable(a.Unit);
             double sumInAUnit = measurableA.ConvertFromBaseUnit(sumBase);
@@ -102,6 +110,9 @@ namespace QuantityMeasurementApp.Models
 
         public static Quantity<U> Add(Quantity<U> a, Quantity<U> b, U targetUnit)
         {
+            ValidateArithmeticSupport(a.Unit, "Add");
+            ValidateArithmeticSupport(b.Unit, "Add");
+            ValidateArithmeticSupport(targetUnit, "Add");
             if (a == null || b == null)
                 throw new ArgumentException("Operands must not be null.");
             if (!a.Unit.GetType().Equals(b.Unit.GetType()) || !a.Unit.GetType().Equals(targetUnit.GetType()))
@@ -114,6 +125,8 @@ namespace QuantityMeasurementApp.Models
 
         public static Quantity<U> Subtract(Quantity<U> a, Quantity<U> b)
         {
+            ValidateArithmeticSupport(a.Unit, "Subtract");
+            ValidateArithmeticSupport(b.Unit, "Subtract");
             double diffBase = PerformArithmetic(a, b, ArithmeticOperation.Subtract);
             var measurableA = GetMeasurable(a.Unit);
             double diffInAUnit = measurableA.ConvertFromBaseUnit(diffBase);
@@ -122,6 +135,9 @@ namespace QuantityMeasurementApp.Models
 
         public static Quantity<U> Subtract(Quantity<U> a, Quantity<U> b, U targetUnit)
         {
+            ValidateArithmeticSupport(a.Unit, "Subtract");
+            ValidateArithmeticSupport(b.Unit, "Subtract");
+            ValidateArithmeticSupport(targetUnit, "Subtract");
             if (a == null || b == null)
                 throw new ArgumentException("Operands must not be null.");
             if (!a.Unit.GetType().Equals(b.Unit.GetType()) || !a.Unit.GetType().Equals(targetUnit.GetType()))
@@ -154,6 +170,8 @@ namespace QuantityMeasurementApp.Models
 
         public double Divide(Quantity<U> other)
         {
+            ValidateArithmeticSupport(Unit, "Divide");
+            ValidateArithmeticSupport(other.Unit, "Divide");
             return Math.Round(PerformArithmetic(this, other, ArithmeticOperation.Divide), 6);
         }
 
