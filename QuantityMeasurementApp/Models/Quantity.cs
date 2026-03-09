@@ -100,6 +100,62 @@ namespace QuantityMeasurementApp.Models
             return Add(this, other, targetUnit);
         }
 
+        public static Quantity<U> Subtract(Quantity<U> a, Quantity<U> b)
+        {
+            if (a == null || b == null)
+                throw new ArgumentException("Operands must not be null.");
+            if (!a.Unit.GetType().Equals(b.Unit.GetType()))
+                throw new ArgumentException("Cannot subtract quantities of different categories.");
+            var measurableA = GetMeasurable(a.Unit);
+            var measurableB = GetMeasurable(b.Unit);
+            double aBase = measurableA.ConvertToBaseUnit(a.Value);
+            double bBase = measurableB.ConvertToBaseUnit(b.Value);
+            double diffBase = aBase - bBase;
+            double diffInAUnit = measurableA.ConvertFromBaseUnit(diffBase);
+            return new Quantity<U>(Math.Round(diffInAUnit, 6), a.Unit);
+        }
+
+        public static Quantity<U> Subtract(Quantity<U> a, Quantity<U> b, U targetUnit)
+        {
+            if (a == null || b == null)
+                throw new ArgumentException("Operands must not be null.");
+            if (!a.Unit.GetType().Equals(b.Unit.GetType()) || !a.Unit.GetType().Equals(targetUnit.GetType()))
+                throw new ArgumentException("Cannot subtract quantities of different categories.");
+            var measurableA = GetMeasurable(a.Unit);
+            var measurableB = GetMeasurable(b.Unit);
+            var measurableTarget = GetMeasurable(targetUnit);
+            double aBase = measurableA.ConvertToBaseUnit(a.Value);
+            double bBase = measurableB.ConvertToBaseUnit(b.Value);
+            double diffBase = aBase - bBase;
+            double diffInTargetUnit = measurableTarget.ConvertFromBaseUnit(diffBase);
+            return new Quantity<U>(Math.Round(diffInTargetUnit, 6), targetUnit);
+        }
+
+        public Quantity<U> Subtract(Quantity<U> other)
+        {
+            return Subtract(this, other);
+        }
+
+        public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
+        {
+            return Subtract(this, other, targetUnit);
+        }
+
+        public double Divide(Quantity<U> other)
+        {
+            if (other == null)
+                throw new ArgumentException("Operand must not be null.");
+            if (!Unit.GetType().Equals(other.Unit.GetType()))
+                throw new ArgumentException("Cannot divide quantities of different categories.");
+            var measurableA = GetMeasurable(Unit);
+            var measurableB = GetMeasurable(other.Unit);
+            double aBase = measurableA.ConvertToBaseUnit(Value);
+            double bBase = measurableB.ConvertToBaseUnit(other.Value);
+            if (Math.Abs(bBase) < 0.000001)
+                throw new DivideByZeroException("Cannot divide by zero quantity.");
+            return Math.Round(aBase / bBase, 6);
+        }
+
         public override string ToString()
         {
             var measurableUnit = (IMeasurable)(object)Unit;

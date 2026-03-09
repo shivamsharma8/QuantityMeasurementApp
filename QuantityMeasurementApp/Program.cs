@@ -41,6 +41,10 @@ namespace QuantityMeasurementApp
                     var q2 = new Quantity<LengthUnit>(value2, unit2);
                     var sum = Quantity<LengthUnit>.Add(q1, q2, targetUnit);
                     Console.WriteLine($"Addition Result: {sum}");
+                    var diff = Quantity<LengthUnit>.Subtract(q1, q2, targetUnit);
+                    Console.WriteLine($"Subtraction Result: {diff}");
+                    double ratio = q1.Divide(q2);
+                    Console.WriteLine($"Division Result: {ratio}");
                     bool result = q1.Equals(q2);
                     Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
                 }
@@ -76,6 +80,10 @@ namespace QuantityMeasurementApp
                     var q2 = new Quantity<WeightUnit>(value2, unit2);
                     var sum = Quantity<WeightUnit>.Add(q1, q2, targetUnit);
                     Console.WriteLine($"Addition Result: {sum}");
+                    var diff = Quantity<WeightUnit>.Subtract(q1, q2, targetUnit);
+                    Console.WriteLine($"Subtraction Result: {diff}");
+                    double ratio = q1.Divide(q2);
+                    Console.WriteLine($"Division Result: {ratio}");
                     bool result = q1.Equals(q2);
                     Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
                 }
@@ -111,6 +119,10 @@ namespace QuantityMeasurementApp
                         var q2 = new Quantity<VolumeUnit>(value2, unit2);
                         var sum = Quantity<VolumeUnit>.Add(q1, q2, targetUnit);
                         Console.WriteLine($"Addition Result: {sum}");
+                        var diff = Quantity<VolumeUnit>.Subtract(q1, q2, targetUnit);
+                        Console.WriteLine($"Subtraction Result: {diff}");
+                        double ratio = q1.Divide(q2);
+                        Console.WriteLine($"Division Result: {ratio}");
                         bool result = q1.Equals(q2);
                         Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
                     }
