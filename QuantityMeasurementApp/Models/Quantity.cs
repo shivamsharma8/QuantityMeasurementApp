@@ -43,7 +43,40 @@ namespace QuantityMeasurementApp.Models
                 return ((VolumeUnit)(object)unit).AsMeasurable();
             throw new ArgumentException("Unsupported unit type");
         }
-        
+
+        private enum ArithmeticOperation
+        {
+            Add,
+            Subtract,
+            Divide
+        }
+
+        private static double PerformArithmetic(Quantity<U> a, Quantity<U> b, ArithmeticOperation op)
+        {
+            if (a == null || b == null)
+                throw new ArgumentException("Operands must not be null.");
+            if (!a.Unit.GetType().Equals(b.Unit.GetType()))
+                throw new ArgumentException("Cannot operate on quantities of different categories.");
+            if (double.IsNaN(a.Value) || double.IsInfinity(a.Value) || double.IsNaN(b.Value) || double.IsInfinity(b.Value))
+                throw new ArgumentException("Values must be finite numbers.");
+            var measurableA = GetMeasurable(a.Unit);
+            var measurableB = GetMeasurable(b.Unit);
+            double aBase = measurableA.ConvertToBaseUnit(a.Value);
+            double bBase = measurableB.ConvertToBaseUnit(b.Value);
+            switch (op)
+            {
+                case ArithmeticOperation.Add:
+                    return aBase + bBase;
+                case ArithmeticOperation.Subtract:
+                    return aBase - bBase;
+                case ArithmeticOperation.Divide:
+                    if (Math.Abs(bBase) < 0.000001)
+                        throw new DivideByZeroException("Cannot divide by zero quantity.");
+                    return aBase / bBase;
+                default:
+                    throw new InvalidOperationException("Unsupported arithmetic operation.");
+            }
+        }
 
         public override int GetHashCode()
         {
@@ -61,15 +94,8 @@ namespace QuantityMeasurementApp.Models
 
         public static Quantity<U> Add(Quantity<U> a, Quantity<U> b)
         {
-            if (a == null || b == null)
-                throw new ArgumentException("Operands must not be null.");
-            if (!a.Unit.GetType().Equals(b.Unit.GetType()))
-                throw new ArgumentException("Cannot add quantities of different categories.");
-            var measurableA = (IMeasurable)(object)a.Unit;
-            var measurableB = (IMeasurable)(object)b.Unit;
-            double aBase = measurableA.ConvertToBaseUnit(a.Value);
-            double bBase = measurableB.ConvertToBaseUnit(b.Value);
-            double sumBase = aBase + bBase;
+            double sumBase = PerformArithmetic(a, b, ArithmeticOperation.Add);
+            var measurableA = GetMeasurable(a.Unit);
             double sumInAUnit = measurableA.ConvertFromBaseUnit(sumBase);
             return new Quantity<U>(Math.Round(sumInAUnit, 6), a.Unit);
         }
@@ -80,37 +106,16 @@ namespace QuantityMeasurementApp.Models
                 throw new ArgumentException("Operands must not be null.");
             if (!a.Unit.GetType().Equals(b.Unit.GetType()) || !a.Unit.GetType().Equals(targetUnit.GetType()))
                 throw new ArgumentException("Cannot add quantities of different categories.");
-            var measurableA = (IMeasurable)(object)a.Unit;
-            var measurableB = (IMeasurable)(object)b.Unit;
-            var measurableTarget = (IMeasurable)(object)targetUnit;
-            double aBase = measurableA.ConvertToBaseUnit(a.Value);
-            double bBase = measurableB.ConvertToBaseUnit(b.Value);
-            double sumBase = aBase + bBase;
+            double sumBase = PerformArithmetic(a, b, ArithmeticOperation.Add);
+            var measurableTarget = GetMeasurable(targetUnit);
             double sumInTargetUnit = measurableTarget.ConvertFromBaseUnit(sumBase);
             return new Quantity<U>(Math.Round(sumInTargetUnit, 6), targetUnit);
         }
 
-        public Quantity<U> Add(Quantity<U> other)
-        {
-            return Add(this, other);
-        }
-
-        public Quantity<U> Add(Quantity<U> other, U targetUnit)
-        {
-            return Add(this, other, targetUnit);
-        }
-
         public static Quantity<U> Subtract(Quantity<U> a, Quantity<U> b)
         {
-            if (a == null || b == null)
-                throw new ArgumentException("Operands must not be null.");
-            if (!a.Unit.GetType().Equals(b.Unit.GetType()))
-                throw new ArgumentException("Cannot subtract quantities of different categories.");
+            double diffBase = PerformArithmetic(a, b, ArithmeticOperation.Subtract);
             var measurableA = GetMeasurable(a.Unit);
-            var measurableB = GetMeasurable(b.Unit);
-            double aBase = measurableA.ConvertToBaseUnit(a.Value);
-            double bBase = measurableB.ConvertToBaseUnit(b.Value);
-            double diffBase = aBase - bBase;
             double diffInAUnit = measurableA.ConvertFromBaseUnit(diffBase);
             return new Quantity<U>(Math.Round(diffInAUnit, 6), a.Unit);
         }
@@ -121,14 +126,20 @@ namespace QuantityMeasurementApp.Models
                 throw new ArgumentException("Operands must not be null.");
             if (!a.Unit.GetType().Equals(b.Unit.GetType()) || !a.Unit.GetType().Equals(targetUnit.GetType()))
                 throw new ArgumentException("Cannot subtract quantities of different categories.");
-            var measurableA = GetMeasurable(a.Unit);
-            var measurableB = GetMeasurable(b.Unit);
+            double diffBase = PerformArithmetic(a, b, ArithmeticOperation.Subtract);
             var measurableTarget = GetMeasurable(targetUnit);
-            double aBase = measurableA.ConvertToBaseUnit(a.Value);
-            double bBase = measurableB.ConvertToBaseUnit(b.Value);
-            double diffBase = aBase - bBase;
             double diffInTargetUnit = measurableTarget.ConvertFromBaseUnit(diffBase);
             return new Quantity<U>(Math.Round(diffInTargetUnit, 6), targetUnit);
+        }
+
+        public Quantity<U> Add(Quantity<U> other)
+        {
+            return Add(this, other);
+        }
+
+        public Quantity<U> Add(Quantity<U> other, U targetUnit)
+        {
+            return Add(this, other, targetUnit);
         }
 
         public Quantity<U> Subtract(Quantity<U> other)
@@ -143,17 +154,7 @@ namespace QuantityMeasurementApp.Models
 
         public double Divide(Quantity<U> other)
         {
-            if (other == null)
-                throw new ArgumentException("Operand must not be null.");
-            if (!Unit.GetType().Equals(other.Unit.GetType()))
-                throw new ArgumentException("Cannot divide quantities of different categories.");
-            var measurableA = GetMeasurable(Unit);
-            var measurableB = GetMeasurable(other.Unit);
-            double aBase = measurableA.ConvertToBaseUnit(Value);
-            double bBase = measurableB.ConvertToBaseUnit(other.Value);
-            if (Math.Abs(bBase) < 0.000001)
-                throw new DivideByZeroException("Cannot divide by zero quantity.");
-            return Math.Round(aBase / bBase, 6);
+            return Math.Round(PerformArithmetic(this, other, ArithmeticOperation.Divide), 6);
         }
 
         public override string ToString()
