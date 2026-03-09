@@ -61,5 +61,28 @@ namespace QuantityMeasurementApp.Models
         {
             return unit.ToString().ToUpper();
         }
+
+        public static IMeasurable AsMeasurable(this WeightUnit unit)
+        {
+            return new WeightUnitMeasurable(unit);
+        }
+
+        private class WeightUnitMeasurable : IMeasurable
+        {
+            private readonly WeightUnit unit;
+
+            public WeightUnitMeasurable(WeightUnit unit)
+            {
+                this.unit = unit;
+            }
+
+            public double GetConversionFactor() => unit.GetConversionFactor();
+
+            public double ConvertToBaseUnit(double value) => unit.ConvertToBaseUnit(value);
+
+            public double ConvertFromBaseUnit(double baseValue) => unit.ConvertFromBaseUnit(baseValue);
+
+            public string GetUnitName() => unit.GetUnitName();
+        }
     }
 }

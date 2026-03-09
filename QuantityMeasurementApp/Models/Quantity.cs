@@ -28,10 +28,22 @@ namespace QuantityMeasurementApp.Models
             if (obj == null || obj.GetType() != GetType()) return false;
             var other = (Quantity<U>)obj;
             if (!Unit.GetType().Equals(other.Unit.GetType())) return false;
-            double thisBase = ((IMeasurable)(object)Unit).ConvertToBaseUnit(Value);
-            double otherBase = ((IMeasurable)(object)other.Unit).ConvertToBaseUnit(other.Value);
+            double thisBase = GetMeasurable(Unit).ConvertToBaseUnit(Value);
+            double otherBase = GetMeasurable(other.Unit).ConvertToBaseUnit(other.Value);
             return Math.Abs(thisBase - otherBase) < 0.0001;
         }
+
+        private static IMeasurable GetMeasurable(U unit)
+        {
+            if (typeof(U) == typeof(LengthUnit))
+                return ((LengthUnit)(object)unit).AsMeasurable();
+            if (typeof(U) == typeof(WeightUnit))
+                return ((WeightUnit)(object)unit).AsMeasurable();
+            if (typeof(U) == typeof(VolumeUnit))
+                return ((VolumeUnit)(object)unit).AsMeasurable();
+            throw new ArgumentException("Unsupported unit type");
+        }
+        
 
         public override int GetHashCode()
         {

@@ -12,6 +12,8 @@ namespace QuantityMeasurementApp.Models
 
     public static class LengthUnitExtensions
     {
+
+        
         public static double GetConversionFactor(this LengthUnit unit)
         {
             switch (unit)
@@ -67,5 +69,27 @@ namespace QuantityMeasurementApp.Models
         {
             return unit.ToString().ToUpper();
         }
+        public static IMeasurable AsMeasurable(this LengthUnit unit)
+        {
+            return new LengthUnitMeasurable(unit);
+        }
+        private class LengthUnitMeasurable : IMeasurable
+        {
+            private readonly LengthUnit unit;
+
+            public LengthUnitMeasurable(LengthUnit unit)
+            {
+                this.unit = unit;
+            }
+
+            public double GetConversionFactor() => unit.GetConversionFactor();
+
+            public double ConvertToBaseUnit(double value) => unit.ConvertToBaseUnit(value);
+
+            public double ConvertFromBaseUnit(double baseValue) => unit.ConvertFromBaseUnit(baseValue);
+
+            public string GetUnitName() => unit.GetUnitName();
+        }
     }
+    
 }
