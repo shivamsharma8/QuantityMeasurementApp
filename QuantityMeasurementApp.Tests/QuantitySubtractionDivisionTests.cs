@@ -1,5 +1,6 @@
 using System;
-using QuantityMeasurementApp.Models;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer;
 using Xunit;
 
 namespace QuantityMeasurementApp.Tests

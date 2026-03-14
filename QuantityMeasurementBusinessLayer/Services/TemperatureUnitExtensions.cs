@@ -1,13 +1,9 @@
-using System;
-using QuantityMeasurementApp.Models;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
 
-namespace QuantityMeasurementApp.Models
+
+namespace QuantityMeasurementBusinessLayer
 {
-    public enum TemperatureUnit
-    {
-        CELSIUS,
-        FAHRENHEIT
-    }
 
     public static class TemperatureUnitExtensions
     {

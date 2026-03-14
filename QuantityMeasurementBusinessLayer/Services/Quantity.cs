@@ -1,7 +1,8 @@
 using System;
-using QuantityMeasurementApp.Models;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
 
-namespace QuantityMeasurementApp.Models
+namespace QuantityMeasurementBusinessLayer
 {
     /// <summary>
     /// Generic quantity class for any measurable unit category.
@@ -44,12 +45,7 @@ namespace QuantityMeasurementApp.Models
             throw new ArgumentException("Unsupported unit type");
         }
 
-        private enum ArithmeticOperation
-        {
-            Add,
-            Subtract,
-            Divide
-        }
+        
 
         private static double PerformArithmetic(Quantity<U> a, Quantity<U> b, ArithmeticOperation op)
         {
@@ -89,10 +85,10 @@ namespace QuantityMeasurementApp.Models
             return Unit.GetHashCode() ^ Value.GetHashCode();
         }
 
-        public Quantity<U> ConvertTo(U targetUnit)
+        public Quantity<U> Convert(U targetUnit)
         {
-            var measurableUnit = (IMeasurable)(object)Unit;
-            var measurableTarget = (IMeasurable)(object)targetUnit;
+            var measurableUnit = GetMeasurable(Unit);
+            var measurableTarget = GetMeasurable(targetUnit);
             double baseValue = measurableUnit.ConvertToBaseUnit(Value);
             double converted = measurableTarget.ConvertFromBaseUnit(baseValue);
             return new Quantity<U>(Math.Round(converted, 6), targetUnit);
@@ -177,8 +173,8 @@ namespace QuantityMeasurementApp.Models
 
         public override string ToString()
         {
-            var measurableUnit = (IMeasurable)(object)Unit;
-            return $"Quantity({Value}, {measurableUnit.GetUnitName()})";
+            var measurable = GetMeasurable(Unit);
+            return $"Quantity({Value}, {measurable.GetUnitName()})";
         }
     }
 }

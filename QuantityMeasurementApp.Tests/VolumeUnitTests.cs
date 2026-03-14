@@ -1,4 +1,5 @@
-using QuantityMeasurementApp.Models;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer;
 using Xunit;
 
 namespace QuantityMeasurementApp.Tests
@@ -33,7 +34,7 @@ namespace QuantityMeasurementApp.Tests
         public void testConversion_LitreToMillilitre()
         {
             var q1 = new Quantity<VolumeUnit>(1.0, VolumeUnit.LITRE);
-            var q2 = q1.ConvertTo(VolumeUnit.MILLILITRE);
+            var q2 = q1.Convert(VolumeUnit.MILLILITRE);
             Assert.Equal(1000.0, q2.Value, 2);
             Assert.Equal(VolumeUnit.MILLILITRE, q2.Unit);
         }

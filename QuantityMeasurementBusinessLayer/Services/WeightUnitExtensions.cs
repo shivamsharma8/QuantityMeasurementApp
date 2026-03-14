@@ -1,14 +1,9 @@
-using System;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
 
-using QuantityMeasurementApp.Models;
-namespace QuantityMeasurementApp.Models
+
+namespace QuantityMeasurementBusinessLayer
 {
-    public enum WeightUnit
-    {
-        Kilogram = 0,
-        Gram = 1,
-        Pound = 2
-    }
 
     public static class WeightUnitExtensions
     {

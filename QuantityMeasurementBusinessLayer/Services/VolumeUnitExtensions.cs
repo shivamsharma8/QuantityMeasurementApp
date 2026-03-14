@@ -1,13 +1,9 @@
-using System;
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
 
-namespace QuantityMeasurementApp.Models
+
+namespace QuantityMeasurementBusinessLayer
 {
-    public enum VolumeUnit
-    {
-        LITRE,
-        MILLILITRE,
-        GALLON
-    }
 
     public static class VolumeUnitExtensions
     {

@@ -1,5 +1,6 @@
 using NUnit.Framework;
-using QuantityMeasurementApp.Models;
+using QuantityMeasurementBusinessLayer;
+using QuantityMeasurementModelLayer;
 
 namespace QuantityMeasurementApp.Tests
 {
@@ -17,7 +18,7 @@ namespace QuantityMeasurementApp.Tests
         public void Length_Conversion()
         {
             var q = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
-            var result = q.ConvertTo(LengthUnit.Inch);
+            var result = q.Convert(LengthUnit.Inch);
             Assert.AreEqual(12.0, result.Value, 1e-6);
             Assert.AreEqual(LengthUnit.Inch, result.Unit);
         }
@@ -44,7 +45,7 @@ namespace QuantityMeasurementApp.Tests
         public void Weight_Conversion()
         {
             var q = new Quantity<WeightUnit>(1.0, WeightUnit.Kilogram);
-            var result = q.ConvertTo(WeightUnit.Gram);
+            var result = q.Convert(WeightUnit.Gram);
             Assert.AreEqual(1000.0, result.Value, 1e-6);
             Assert.AreEqual(WeightUnit.Gram, result.Unit);
         }

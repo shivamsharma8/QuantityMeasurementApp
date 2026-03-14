@@ -1,4 +1,4 @@
-namespace QuantityMeasurementApp.Models
+namespace QuantityMeasurementBusinessLayer.Interfaces
 {
     public interface IMeasurable
     {

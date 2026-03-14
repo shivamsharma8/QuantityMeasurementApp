@@ -1,19 +1,14 @@
-using System;
-using QuantityMeasurementApp.Models;
-namespace QuantityMeasurementApp.Models
+using QuantityMeasurementModelLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
+
+namespace QuantityMeasurementBusinessLayer
 {
-    public enum LengthUnit
-    {
-        Feet = 0,
-        Inch = 1,
-        Yard = 2,
-        Centimeter = 3
-    }
+
 
     public static class LengthUnitExtensions
     {
 
-        
+
         public static double GetConversionFactor(this LengthUnit unit)
         {
             switch (unit)
@@ -91,5 +86,4 @@ namespace QuantityMeasurementApp.Models
             public string GetUnitName() => unit.GetUnitName();
         }
     }
-    
 }
