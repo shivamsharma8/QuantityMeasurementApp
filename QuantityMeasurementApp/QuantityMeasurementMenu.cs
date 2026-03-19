@@ -1,165 +1,60 @@
-using QuantityMeasurementBusinessLayer;
+using System;
 using QuantityMeasurementModelLayer;
 
 namespace QuantityMeasurementApp
 {
-    class QuantityMeasurementMenu
+    public class QuantityMeasurementMenu
     {
-        public static void ShowMenu()
+        public static void ShowMenu(QuantityMeasurementController controller)
         {
             Console.Write("Choose category (length/weight/volume): ");
-            string category = Console.ReadLine()?.Trim().ToLower();
+            string category = Console.ReadLine()?.Trim().ToLower() ?? string.Empty;
 
-            if (category == "length")
+            Console.Write("Enter first value: ");
+            string valueInput1 = Console.ReadLine() ?? string.Empty;
+
+            Console.Write("Enter first unit: ");
+            string unitInput1 = Console.ReadLine()?.Trim() ?? string.Empty;
+
+            Console.Write("Enter second value: ");
+            string valueInput2 = Console.ReadLine() ?? string.Empty;
+
+            Console.Write("Enter second unit: ");
+            string unitInput2 = Console.ReadLine()?.Trim() ?? string.Empty;
+
+            Console.Write("Enter target unit for addition/subtraction result: ");
+            string targetUnitInput = Console.ReadLine()?.Trim() ?? string.Empty;
+
+            if (!double.TryParse(valueInput1, out double value1) || !double.TryParse(valueInput2, out double value2))
             {
-                Console.Write("Enter first value: ");
-                string valueInput1 = Console.ReadLine();
-                Console.Write("Enter first unit (feet/inch/yard/cm): ");
-                string unitInput1 = Console.ReadLine();
-
-                Console.Write("Enter second value: ");
-                string valueInput2 = Console.ReadLine();
-                Console.Write("Enter second unit (feet/inch/yard/cm): ");
-                string unitInput2 = Console.ReadLine();
-
-                Console.Write("Enter target unit for addition result (feet/inch/yard/cm): ");
-                string targetUnitInput = Console.ReadLine();
-
-                if (double.TryParse(valueInput1, out double value1) && double.TryParse(valueInput2, out double value2)
-                    && Enum.TryParse(typeof(LengthUnit), Capitalize(unitInput1), out var unit1Obj)
-                    && Enum.TryParse(typeof(LengthUnit), Capitalize(unitInput2), out var unit2Obj)
-                    && Enum.TryParse(typeof(LengthUnit), Capitalize(targetUnitInput), out var targetUnitObj))
-                {
-                    var unit1 = (LengthUnit)unit1Obj;
-                    var unit2 = (LengthUnit)unit2Obj;
-                    var targetUnit = (LengthUnit)targetUnitObj;
-                    var q1 = new Quantity<LengthUnit>(value1, unit1);
-                    var q2 = new Quantity<LengthUnit>(value2, unit2);
-                    var sum = Quantity<LengthUnit>.Add(q1, q2, targetUnit);
-                    Console.WriteLine($"Addition Result: {sum}");
-                    var diff = Quantity<LengthUnit>.Subtract(q1, q2, targetUnit);
-                    Console.WriteLine($"Subtraction Result: {diff}");
-                    double ratio = q1.Divide(q2);
-                    Console.WriteLine($"Division Result: {ratio}");
-                    bool result = q1.Equals(q2);
-                    Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter numeric values and valid units (feet/inch/yard/cm). Also specify a valid target unit.");
-                }
+                Console.WriteLine("Invalid numeric input. Please enter valid numbers.");
+                return;
             }
-            else if (category == "weight")
+
+            MeasurementRequestDTO request = new MeasurementRequestDTO
             {
-                Console.Write("Enter first value: ");
-                string valueInput1 = Console.ReadLine();
-                Console.Write("Enter first unit (kg/g/lb): ");
-                string unitInput1 = Console.ReadLine();
+                Category = category,
+                Value1 = value1,
+                Unit1 = unitInput1,
+                Value2 = value2,
+                Unit2 = unitInput2,
+                TargetUnit = targetUnitInput
+            };
 
-                Console.Write("Enter second value: ");
-                string valueInput2 = Console.ReadLine();
-                Console.Write("Enter second unit (kg/g/lb): ");
-                string unitInput2 = Console.ReadLine();
+            MeasurementResponseDTO response = controller.ProcessMeasurement(request);
 
-                Console.Write("Enter target unit for addition result (kg/g/lb): ");
-                string targetUnitInput = Console.ReadLine();
-
-                if (double.TryParse(valueInput1, out double value1) && double.TryParse(valueInput2, out double value2)
-                    && Enum.TryParse(typeof(WeightUnit), CapitalizeWeight(unitInput1), out var unit1Obj)
-                    && Enum.TryParse(typeof(WeightUnit), CapitalizeWeight(unitInput2), out var unit2Obj)
-                    && Enum.TryParse(typeof(WeightUnit), CapitalizeWeight(targetUnitInput), out var targetUnitObj))
-                {
-                    var unit1 = (WeightUnit)unit1Obj;
-                    var unit2 = (WeightUnit)unit2Obj;
-                    var targetUnit = (WeightUnit)targetUnitObj;
-                    var q1 = new Quantity<WeightUnit>(value1, unit1);
-                    var q2 = new Quantity<WeightUnit>(value2, unit2);
-                    var sum = Quantity<WeightUnit>.Add(q1, q2, targetUnit);
-                    Console.WriteLine($"Addition Result: {sum}");
-                    var diff = Quantity<WeightUnit>.Subtract(q1, q2, targetUnit);
-                    Console.WriteLine($"Subtraction Result: {diff}");
-                    double ratio = q1.Divide(q2);
-                    Console.WriteLine($"Division Result: {ratio}");
-                    bool result = q1.Equals(q2);
-                    Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter numeric values and valid units (kg/g/lb). Also specify a valid target unit.");
-                }
-            }
-            else if (category == "volume")
+            if (!response.IsSuccess)
             {
-                Console.Write("Enter first value: ");
-                string valueInput1 = Console.ReadLine();
-                Console.Write("Enter first unit (litre/millilitre/gallon): ");
-                string unitInput1 = Console.ReadLine();
+                Console.WriteLine($"Error: {response.Message}");
+                return;
+            }
 
-                Console.Write("Enter second value: ");
-                string valueInput2 = Console.ReadLine();
-                Console.Write("Enter second unit (litre/millilitre/gallon): ");
-                string unitInput2 = Console.ReadLine();
-
-                Console.Write("Enter target unit for addition result (litre/millilitre/gallon): ");
-                string targetUnitInput = Console.ReadLine();
-
-                if (double.TryParse(valueInput1, out double value1) && double.TryParse(valueInput2, out double value2)
-                    && Enum.TryParse(typeof(VolumeUnit), CapitalizeVolume(unitInput1), out var unit1Obj)
-                    && Enum.TryParse(typeof(VolumeUnit), CapitalizeVolume(unitInput2), out var unit2Obj)
-                    && Enum.TryParse(typeof(VolumeUnit), CapitalizeVolume(targetUnitInput), out var targetUnitObj))
-                {
-                    var unit1 = (VolumeUnit)unit1Obj;
-                    var unit2 = (VolumeUnit)unit2Obj;
-                    var targetUnit = (VolumeUnit)targetUnitObj;
-                    var q1 = new Quantity<VolumeUnit>(value1, unit1);
-                    var q2 = new Quantity<VolumeUnit>(value2, unit2);
-                    var sum = Quantity<VolumeUnit>.Add(q1, q2, targetUnit);
-                    Console.WriteLine($"Addition Result: {sum}");
-                    var diff = Quantity<VolumeUnit>.Subtract(q1, q2, targetUnit);
-                    Console.WriteLine($"Subtraction Result: {diff}");
-                    double ratio = q1.Divide(q2);
-                    Console.WriteLine($"Division Result: {ratio}");
-                    bool result = q1.Equals(q2);
-                    Console.WriteLine(result ? "Equal (true)" : "Not Equal (false)");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter numeric values and valid units (litre/millilitre/gallon). Also specify a valid target unit.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid category. Please enter 'length' or 'weight'.");
-            }
-            static string CapitalizeWeight(string input)
-            {
-                if (string.IsNullOrWhiteSpace(input)) return input;
-                input = input.Trim().ToLower();
-                if (input == "kg" || input == "kilogram" || input == "kilograms") return "Kilogram";
-                if (input == "g" || input == "gram" || input == "grams") return "Gram";
-                if (input == "lb" || input == "pound" || input == "pounds") return "Pound";
-                return char.ToUpper(input[0]) + input.Substring(1);
-            }
-            static string CapitalizeVolume(string input)
-            {
-                if (string.IsNullOrWhiteSpace(input)) return input;
-                input = input.Trim().ToLower();
-                if (input == "l" || input == "litre" || input == "liter" || input == "litres" || input == "liters") return "Litre";
-                if (input == "ml" || input == "millilitre" || input == "milliliter" || input == "millilitres" || input == "milliliters") return "Millilitre";
-                if (input == "gal" || input == "gallon" || input == "gallons") return "Gallon";
-                return char.ToUpper(input[0]) + input.Substring(1);
-            }
-        }
-        static string Capitalize(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return input;
-            input = input.Trim().ToLower();
-            if (input == "feet" || input == "foot") return "Feet";
-            if (input == "inch" || input == "inches") return "Inch";
-            if (input == "yard" || input == "yards") return "Yard";
-            if (input == "cm" || input == "centimeter" || input == "centimeters") return "Centimeter";
-            return char.ToUpper(input[0]) + input.Substring(1);
+            Console.WriteLine($"\nCategory: {response.Category}");
+            Console.WriteLine($"Addition Result: {response.AdditionResult}");
+            Console.WriteLine($"Subtraction Result: {response.SubtractionResult}");
+            Console.WriteLine($"Division Result: {response.DivisionResult}");
+            Console.WriteLine(response.IsEqual ? "Equal (true)" : "Not Equal (false)");
+            Console.WriteLine(response.Message);
         }
     }
 }
-        
