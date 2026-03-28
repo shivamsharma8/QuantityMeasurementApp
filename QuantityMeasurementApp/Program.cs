@@ -1,7 +1,10 @@
-using System;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using QuantityMeasurementApp.ExceptionHandling;
 using QuantityMeasurementBusinessLayer;
+using QuantityMeasurementBusinessLayer.Interfaces;
 using QuantityMeasurementRepositoryLayer;
 
 namespace QuantityMeasurementApp
@@ -10,37 +13,66 @@ namespace QuantityMeasurementApp
     {
         public static void Main(string[] args)
         {
-            // Set up configuration
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .Build();
+            var builder = WebApplication.CreateBuilder(args);
 
-            // Read repository type
-            string repositoryType = configuration.GetSection("RepositorySettings")["RepositoryType"] ?? "Cache";
-            
-            IQuantityMeasurementRepository repository;
+            // Add services to the container.
+            builder.Services.AddControllers();
 
-            if (repositoryType.Equals("Database", StringComparison.OrdinalIgnoreCase))
+            // Configure Database
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<QuantityMeasurementDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            // Register Repositories and Services
+            builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
+            builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
+
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
             {
-                string connectionString = configuration.GetConnectionString("DefaultConnection");
-                if (string.IsNullOrWhiteSpace(connectionString))
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Console.WriteLine("Error: DefaultConnection string is missing in appsettings.json.");
-                    return;
+                    Title = "Quantity Measurement API",
+                    Version = "v1",
+                    Description = "API for comparing, converting, and calculating quantities."
+                });
+
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
+                var modelXmlFile = "QuantityMeasurementModelLayer.xml";
+                var modelXmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, modelXmlFile);
+                if (System.IO.File.Exists(modelXmlPath))
+                {
+                    c.IncludeXmlComments(modelXmlPath);
                 }
-                repository = new QuantityMeasurementDatabaseRepository(connectionString);
-            }
-            else
+            });
+
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
+            // Enable Swagger globally for this project
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            // Redirect root to swagger
+            app.MapGet("/", context =>
             {
-                repository = new QuantityMeasurementCacheRepository();
-            }
+                context.Response.Redirect("/swagger");
+                return System.Threading.Tasks.Task.CompletedTask;
+            });
 
-            // Inject the selected repository into the service layer
-            var service = new QuantityMeasurementService(repository);
-            var controller = new QuantityMeasurementController(service);
+            app.UseHttpsRedirection();
 
-            QuantityMeasurementMenu.ShowMenu(controller);
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.Run();
         }
     }
 }

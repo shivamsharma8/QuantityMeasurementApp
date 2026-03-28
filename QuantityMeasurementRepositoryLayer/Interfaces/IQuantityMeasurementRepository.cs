@@ -10,5 +10,11 @@ namespace QuantityMeasurementRepositoryLayer
         QuantityMeasurementEntity? GetLastMeasurement();
 
         List<QuantityMeasurementEntity> GetAllMeasurements();
+        
+        List<QuantityMeasurementEntity> GetByOperation(string operation);
+        
+        List<QuantityMeasurementEntity> GetByCategory(string category);
+        
+        int GetOperationCount(string operation);
     }
 }

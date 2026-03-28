@@ -31,7 +31,7 @@ namespace QuantityMeasurementBusinessLayer
             if (!Unit.GetType().Equals(other.Unit.GetType())) return false;
             double thisBase = GetMeasurable(Unit).ConvertToBaseUnit(Value);
             double otherBase = GetMeasurable(other.Unit).ConvertToBaseUnit(other.Value);
-            return Math.Abs(thisBase - otherBase) < 0.0001;
+            return Math.Abs(thisBase - otherBase) < 0.01;
         }
 
         private static IMeasurable GetMeasurable(U unit)
@@ -42,6 +42,8 @@ namespace QuantityMeasurementBusinessLayer
                 return ((WeightUnit)(object)unit).AsMeasurable();
             if (typeof(U) == typeof(VolumeUnit))
                 return ((VolumeUnit)(object)unit).AsMeasurable();
+            if (typeof(U) == typeof(TemperatureUnit))
+                return ((TemperatureUnit)(object)unit).AsMeasurable();
             throw new ArgumentException("Unsupported unit type");
         }
 

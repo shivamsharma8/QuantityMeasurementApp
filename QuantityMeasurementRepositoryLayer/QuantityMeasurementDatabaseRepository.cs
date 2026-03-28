@@ -141,5 +141,20 @@ namespace QuantityMeasurementRepositoryLayer
 
             return entity;
         }
+
+        public List<QuantityMeasurementEntity> GetByOperation(string operation)
+        {
+            throw new NotImplementedException("Not implemented for ADO.NET legacy repository.");
+        }
+
+        public List<QuantityMeasurementEntity> GetByCategory(string category)
+        {
+            throw new NotImplementedException("Not implemented for ADO.NET legacy repository.");
+        }
+
+        public int GetOperationCount(string operation)
+        {
+            throw new NotImplementedException("Not implemented for ADO.NET legacy repository.");
+        }
     }
 }

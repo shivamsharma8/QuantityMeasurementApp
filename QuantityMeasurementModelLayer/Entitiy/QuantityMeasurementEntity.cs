@@ -6,6 +6,11 @@ namespace QuantityMeasurementModelLayer
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        // New properties for Web API
+        public string OperationType { get; set; } = string.Empty;
+        public bool IsSuccess { get; set; } = true;
+        public string ErrorMessage { get; set; } = string.Empty;
+
         public string Category { get; set; } = string.Empty;
 
         public double Value1 { get; set; }
