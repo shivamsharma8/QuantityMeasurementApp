@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuantityMeasurementModelLayer;
+using QuantityMeasurementModelLayer.Entities;
 
 namespace QuantityMeasurementRepositoryLayer
 {
@@ -10,11 +11,13 @@ namespace QuantityMeasurementRepositoryLayer
         }
 
         public DbSet<QuantityMeasurementEntity> Measurements { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<QuantityMeasurementEntity>().HasKey(e => e.Id);
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         }
     }
 }

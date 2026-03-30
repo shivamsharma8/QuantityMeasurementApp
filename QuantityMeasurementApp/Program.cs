@@ -5,7 +5,13 @@ using Microsoft.Extensions.Hosting;
 using QuantityMeasurementApp.ExceptionHandling;
 using QuantityMeasurementBusinessLayer;
 using QuantityMeasurementBusinessLayer.Interfaces;
+using QuantityMeasurementBusinessLayer.Services;
 using QuantityMeasurementRepositoryLayer;
+using QuantityMeasurementRepositoryLayer.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace QuantityMeasurementApp
 {
@@ -26,6 +32,30 @@ namespace QuantityMeasurementApp
             // Register Repositories and Services
             builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
             builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
+            
+            // UC18: Auth & User Services
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IHashingService, HashingService>();
+            builder.Services.AddScoped<ISecurityService, SecurityService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            // UC18: JWT Configuration
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
+                    };
+                });
+            builder.Services.AddAuthorization();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -48,6 +78,26 @@ namespace QuantityMeasurementApp
                 {
                     c.IncludeXmlComments(modelXmlPath);
                 }
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Just paste your token below.",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                        },
+                        System.Array.Empty<string>()
+                    }
+                });
             });
 
             var app = builder.Build();
@@ -68,6 +118,7 @@ namespace QuantityMeasurementApp
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
