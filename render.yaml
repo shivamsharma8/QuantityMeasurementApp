@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: quantity-measurement-backend
+    runtime: dotnet
+    buildCommand: dotnet restore QuantityMeasurementApp/QuantityMeasurementApp.csproj && dotnet publish QuantityMeasurementApp/QuantityMeasurementApp.csproj -c Release -o publish
+    startCommand: dotnet publish/QuantityMeasurementApp.dll
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:$PORT
