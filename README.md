@@ -3,6 +3,8 @@
 A scalable and extensible **Quantity Measurement Application** built in **C# / .NET**, developed progressively through **UC1–UC18**.  
 This project demonstrates strong fundamentals of **Object-Oriented Programming (OOP)**, **SOLID principles**, **generic programming**, **unit conversion**, **arithmetic operations**, **N-Tier architecture**, **database integration**, **ASP.NET Core Web API**, and **backend security using JWT + Google OAuth2**.
 
+The QuantityMeasurementApp class is responsible for checking the equality of two numerical values measured in feet within the Quantity Measurement Application. It ensures accurate comparisons and handles various edge cases.
+
 ---
 
 ## 🚀 Current Status
