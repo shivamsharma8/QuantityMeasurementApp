@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="auth-service/auth-service.csproj" />
-  <Project Path="gateway/gateway.csproj" />
-  <Project Path="history-service/history-service.csproj" />
-  <Project Path="quantity-service/quantity-service.csproj" />
-</Solution>

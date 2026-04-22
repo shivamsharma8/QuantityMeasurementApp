@@ -24,6 +24,18 @@ namespace QuantityMeasurementApp
             // Add services to the container.
             builder.Services.AddControllers();
 
+            // Configure CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
             // Configure Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<QuantityMeasurementDbContext>(options =>
@@ -117,6 +129,8 @@ namespace QuantityMeasurementApp
             });
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowFrontend");
 
             app.UseAuthentication();
             app.UseAuthorization();
