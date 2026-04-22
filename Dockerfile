@@ -1,5 +1,5 @@
 # 1. Use the official .NET SDK to build the app
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # 2. Copy the entire solution (all folders) into Docker
