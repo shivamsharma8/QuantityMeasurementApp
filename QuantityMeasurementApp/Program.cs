@@ -26,15 +26,15 @@ namespace QuantityMeasurementApp
 
             // Configure CORS
             builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowFrontend",
-                    builder =>
-                    {
-                        builder.WithOrigins("https://stunning-unicorn-7e64ba.netlify.app/")
-                               .AllowAnyHeader()
-                               .AllowAnyMethod();
-                    });
-            });
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
             // Configure Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
