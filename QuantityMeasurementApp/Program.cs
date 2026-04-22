@@ -30,7 +30,7 @@ namespace QuantityMeasurementApp
                 options.AddPolicy("AllowFrontend",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:4200")
+                        builder.WithOrigins("https://stunning-unicorn-7e64ba.netlify.app/")
                                .AllowAnyHeader()
                                .AllowAnyMethod();
                     });
