@@ -21,38 +21,40 @@ namespace QuantityMeasurementApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllers();
 
-            // Configure CORS
+            // ✅ CORS FIX (Netlify + Localhost)
             builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy.WithOrigins(
+                                "https://stunning-unicorn-7e64ba.netlify.app",
+                                "http://localhost:4200",
+                                "http://localhost:5173"
+                            )
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
 
-            // Configure Database
+            // Database
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<QuantityMeasurementDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            // Register Repositories and Services
+            // Services
             builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
             builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
-            
-            // UC18: Auth & User Services
+
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IHashingService, HashingService>();
             builder.Services.AddScoped<ISecurityService, SecurityService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
 
-            // UC18: JWT Configuration
+            // JWT
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -64,72 +66,66 @@ namespace QuantityMeasurementApp
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "")
+                        )
                     };
                 });
+
             builder.Services.AddAuthorization();
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Quantity Measurement API",
-                    Version = "v1",
-                    Description = "API for comparing, converting, and calculating quantities."
+                    Version = "v1"
                 });
-
-                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-
-                var modelXmlFile = "QuantityMeasurementModelLayer.xml";
-                var modelXmlPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, modelXmlFile);
-                if (System.IO.File.Exists(modelXmlPath))
-                {
-                    c.IncludeXmlComments(modelXmlPath);
-                }
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Just paste your token below.",
                     Name = "Authorization",
-                    In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
-                    BearerFormat = "JWT"
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header
                 });
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
                         },
-                        System.Array.Empty<string>()
+                        new string[] {}
                     }
                 });
             });
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Middleware
             app.UseMiddleware<GlobalExceptionMiddleware>();
 
-            // Enable Swagger globally for this project
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            // Redirect root to swagger
             app.MapGet("/", context =>
             {
                 context.Response.Redirect("/swagger");
-                return System.Threading.Tasks.Task.CompletedTask;
+                return Task.CompletedTask;
             });
 
             app.UseHttpsRedirection();
 
+            // ✅ CORS MUST BE BEFORE AUTH
             app.UseCors("AllowFrontend");
 
             app.UseAuthentication();
